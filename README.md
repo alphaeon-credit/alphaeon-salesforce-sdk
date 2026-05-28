@@ -1,6 +1,6 @@
 # Alphaeon Salesforce SDK
 
-A Salesforce DX project that embeds the [Alphaeon JS SDK](https://alphaeon.com)
+A Salesforce DX project that embeds the [Alphaeon JS SDK](https://alphaeon-credit.github.io/AlphaeonJS/)
 into Lightning Experience as a configurable Lightning Web Component on
 **Account** and **Contact** record pages.
 
