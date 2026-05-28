@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>66.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>Alphaeon SDK Iframe</masterLabel>
+    <description
+  >Renders the Alphaeon JS SDK in a Visualforce iframe and passes the selected record's details to it.</description>
+    <targets>
+        <target>lightning__RecordPage</target>
+        <target>lightning__AppPage</target>
+        <target>lightning__HomePage</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__AppPage,lightning__HomePage">
+            <property
+        name="componentType"
+        type="String"
+        label="SDK Component Type"
+        default="customer_status:merchant:badge"
+        description="Which Alphaeon SDK component to render (e.g. customer_status:merchant:badge, checkout:merchant:button)."
+      />
+            <property
+        name="environmentOverride"
+        type="String"
+        label="Environment Override"
+        datasource="sandbox,production"
+        description="Optional. Overrides the environment from the Alphaeon Config metadata for this placement."
+      />
+            <property
+        name="configDeveloperName"
+        type="String"
+        label="Config Developer Name"
+        default="Default"
+        description="DeveloperName of the Alphaeon Config custom metadata record to use."
+      />
+            <property
+        name="iframeHeight"
+        type="Integer"
+        label="Iframe Height (px)"
+        default="50"
+        description="Height of the embedded SDK iframe in pixels."
+      />
+        </targetConfig>
+        <targetConfig targets="lightning__RecordPage">
+            <property
+        name="componentType"
+        type="String"
+        label="SDK Component Type"
+        default="customer_status:merchant:badge"
+        description="Which Alphaeon SDK component to render (e.g. customer_status:merchant:badge, checkout:merchant:button)."
+      />
+            <property
+        name="environmentOverride"
+        type="String"
+        label="Environment Override"
+        datasource="sandbox,production"
+        description="Optional. Overrides the environment from the Alphaeon Config metadata for this placement."
+      />
+            <property
+        name="configDeveloperName"
+        type="String"
+        label="Config Developer Name"
+        default="Default"
+        description="DeveloperName of the Alphaeon Config custom metadata record to use."
+      />
+            <property
+        name="sobjectType"
+        type="String"
+        label="SObject Type"
+        datasource="Account,Contact"
+        default="Account"
+        description="The record type this placement sits on. Selects which Alphaeon Field Mapping records apply."
+      />
+            <property
+        name="iframeHeight"
+        type="Integer"
+        label="Iframe Height (px)"
+        default="50"
+        description="Height of the embedded SDK iframe in pixels."
+      />
+            <objects>
+                <object>Account</object>
+                <object>Contact</object>
+            </objects>
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

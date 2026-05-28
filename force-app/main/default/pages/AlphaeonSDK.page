@@ -1,0 +1,209 @@
+<apex:page
+  controller="AlphaeonSDKController"
+  showHeader="false"
+  sidebar="false"
+  standardStylesheets="false"
+  applyHtmlTag="true"
+  applyBodyTag="false"
+  docType="html-5.0"
+>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Alphaeon JS SDK. Host is chosen server-side from the environment config. -->
+    <script src="{!sdkUrl}"></script>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        font-family:
+          Salesforce Sans,
+          Arial,
+          sans-serif;
+      }
+      #alphaeon-root {
+        padding: 8px;
+      }
+      #alphaeon-status {
+        font-size: 12px;
+        color: #706e6b;
+        padding: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="alphaeon-root"></div>
+    <div id="alphaeon-status">Waiting for account data&hellip;</div>
+
+    <script>
+      (function () {
+        "use strict";
+
+        // Config injected server-side. The client key is intentionally only
+        // present in this Visualforce document, never sent back to the LWC.
+        var CFG = {
+          clientId: "{!JSENCODE(clientId)}",
+          clientKey: "{!JSENCODE(clientKey)}",
+          environment: "{!JSENCODE(environment)}",
+          baseUrl: "{!JSENCODE(baseUrl)}"
+        };
+
+        var DIV_ID = "alphaeon-root";
+        var sdk = null;
+        var parentOrigin = null; // captured from the first trusted render message
+
+        // Only accept messages from a Salesforce-hosted parent. The iframe's
+        // parent is Lightning Experience (*.lightning.force.com), an Experience
+        // site (*.force.com / *.my.site.com), or Setup (*.salesforce.com).
+        var TRUSTED_HOST_SUFFIXES = [
+          ".lightning.force.com",
+          ".my.salesforce.com",
+          ".salesforce.com",
+          ".my.site.com",
+          ".force.com",
+          ".visualforce.com"
+        ];
+
+        function isTrustedOrigin(origin) {
+          if (!origin || origin === "null") {
+            return false;
+          }
+          try {
+            var url = new URL(origin);
+            if (url.protocol !== "https:") {
+              return false;
+            }
+            var host = url.hostname.toLowerCase();
+            for (var i = 0; i < TRUSTED_HOST_SUFFIXES.length; i++) {
+              if (
+                host === TRUSTED_HOST_SUFFIXES[i].slice(1) ||
+                host.endsWith(TRUSTED_HOST_SUFFIXES[i])
+              ) {
+                return true;
+              }
+            }
+          } catch (e) {
+            return false;
+          }
+          return false;
+        }
+
+        function setStatus(msg) {
+          var el = document.getElementById("alphaeon-status");
+          if (el) {
+            el.textContent = msg;
+          }
+        }
+
+        function send(type, data) {
+          if (!parentOrigin) {
+            return;
+          }
+          window.parent.postMessage(
+            { source: "alphaeon-vf", type: type, data: data || null },
+            parentOrigin
+          );
+        }
+
+        function getSdk() {
+          if (sdk) {
+            return sdk;
+          }
+          if (typeof AlphaeonJS === "undefined") {
+            return null;
+          }
+          var initCfg = {
+            clientId: CFG.clientId,
+            clientKey: CFG.clientKey,
+            environment: CFG.environment
+          };
+          if (CFG.baseUrl) {
+            initCfg.baseUrl = CFG.baseUrl;
+          }
+          sdk = AlphaeonJS.init(initCfg);
+          return sdk;
+        }
+
+        function render(payload) {
+          var inst = getSdk();
+          if (!inst) {
+            setStatus("Alphaeon SDK failed to load.");
+            send("alphaeon:error", { message: "AlphaeonJS not available" });
+            return;
+          }
+          // Re-rendering for a new account: clear the previous registration first.
+          try {
+            inst.unregister({ domDivId: DIV_ID });
+          } catch (e) {
+            /* no-op */
+          }
+
+          var cfg = {
+            domDivId: DIV_ID,
+            componentType:
+              payload.componentType || "customer_status:merchant:badge",
+            customerData: payload.customerData || {},
+            practiceData: payload.practiceData || {},
+            onComplete: function (ev) {
+              send("alphaeon:complete", ev);
+            },
+            onExit: function (ev) {
+              send("alphaeon:exit", ev || null);
+            },
+            onEvent: function (ev) {
+              send("alphaeon:event", ev);
+            }
+          };
+          if (payload.txnData) {
+            cfg.txnData = payload.txnData;
+          }
+          if (payload.options) {
+            cfg.options = payload.options;
+          }
+
+          try {
+            inst.register(cfg);
+            setStatus("");
+          } catch (e) {
+            setStatus("Unable to render Alphaeon component.");
+            send("alphaeon:error", {
+              message: String(e && e.message ? e.message : e)
+            });
+          }
+        }
+
+        window.addEventListener("message", function (event) {
+          var d = event.data;
+          if (!d || d.type !== "alphaeon:render") {
+            return;
+          }
+          // Reject messages from any origin that is not a Salesforce host.
+          if (!isTrustedOrigin(event.origin)) {
+            return;
+          }
+          // Trust the origin that asked us to render and reply only to it.
+          parentOrigin = event.origin;
+          render(d.payload || {});
+        });
+
+        // Announce readiness so the LWC can push the first payload. This ping
+        // carries no PII, so a wildcard target origin is acceptable here.
+        function announceReady() {
+          window.parent.postMessage(
+            { source: "alphaeon-vf", type: "alphaeon:ready" },
+            "*"
+          );
+        }
+        if (
+          document.readyState === "complete" ||
+          document.readyState === "interactive"
+        ) {
+          announceReady();
+        } else {
+          document.addEventListener("DOMContentLoaded", announceReady);
+        }
+      })();
+    </script>
+  </body>
+</apex:page>

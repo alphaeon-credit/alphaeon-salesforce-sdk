@@ -1,0 +1,22 @@
+# List files or directories below to ignore them when running force:source:push, force:source:pull, and force:source:status
+# More information: https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_exclude_source.htm
+#
+
+package.xml
+
+# LWC configuration files
+**/jsconfig.json
+**/.eslintrc.json
+
+# LWC Jest
+**/__tests__/**
+
+node_modules/
+
+# The Default Alphaeon Config record holds org-specific values (Client Id,
+# Client Key, Base Url override) that admins edit via the Setup UI. Ignoring
+# it here keeps `sf project deploy start` from clobbering those values with
+# the placeholder content in source. The file stays in the repo so the schema
+# and the first-time bootstrap deploy stay self-contained — see
+# INSTALLATION.md for the bootstrap workflow.
+force-app/main/default/customMetadata/Alphaeon_Config.Default.md-meta.xml

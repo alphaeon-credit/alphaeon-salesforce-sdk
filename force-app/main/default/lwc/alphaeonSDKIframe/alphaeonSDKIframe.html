@@ -1,0 +1,34 @@
+<template>
+  <lightning-card title="Alphaeon Credit" icon-name="standard:account">
+    <template lwc:if={environmentLabel}>
+      <span slot="actions" class="slds-badge">{environmentLabel}</span>
+    </template>
+
+    <div class="slds-p-horizontal_small slds-p-bottom_small">
+      <template lwc:if={showConfigWarning}>
+        <div
+          class="slds-text-color_weak slds-text-body_small slds-p-bottom_x-small"
+        >
+          Alphaeon credentials are not configured. Set the Client Id/Key on the
+          Alphaeon Config custom metadata record.
+        </div>
+      </template>
+
+      <template lwc:if={errorMessage}>
+        <div
+          class="slds-text-color_error slds-text-body_small slds-p-bottom_x-small"
+        >
+          {errorMessage}
+        </div>
+      </template>
+
+      <iframe
+        title="Alphaeon SDK"
+        src={iframeSrc}
+        style={frameStyle}
+        allow="payment; clipboard-write"
+        scrolling="no"
+      ></iframe>
+    </div>
+  </lightning-card>
+</template>

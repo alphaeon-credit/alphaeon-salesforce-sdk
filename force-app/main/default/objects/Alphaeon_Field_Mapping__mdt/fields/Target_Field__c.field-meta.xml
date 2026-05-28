@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Target_Field__c</fullName>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <label>Target Field</label>
+    <required>true</required>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>mobilePhone</fullName>
+                <default>false</default>
+                <label>mobilePhone (customerData)</label>
+            </value>
+            <value>
+                <fullName>zip</fullName>
+                <default>false</default>
+                <label>zip (customerData)</label>
+            </value>
+            <value>
+                <fullName>last4Ssn</fullName>
+                <default>false</default>
+                <label>last4Ssn (customerData)</label>
+            </value>
+            <value>
+                <fullName>dateOfBirth</fullName>
+                <default>false</default>
+                <label>dateOfBirth (customerData)</label>
+            </value>
+            <value>
+                <fullName>firstName</fullName>
+                <default>false</default>
+                <label>firstName (customerData)</label>
+            </value>
+            <value>
+                <fullName>lastName</fullName>
+                <default>false</default>
+                <label>lastName (customerData)</label>
+            </value>
+            <value>
+                <fullName>locationName</fullName>
+                <default>false</default>
+                <label>locationName (practiceData)</label>
+            </value>
+            <value>
+                <fullName>locationId</fullName>
+                <default>false</default>
+                <label>locationId (practiceData)</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>
