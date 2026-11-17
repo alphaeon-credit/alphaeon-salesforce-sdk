@@ -100,9 +100,7 @@ export default class AlphaeonSDKIframe extends LightningElement {
    *  type (always correct when present), falling back to the @api property for
    *  AppPage/HomePage placements or unrecognized prefixes. */
   get resolvedSobjectType() {
-    return (
-      sobjectFromRecordId(this._recordId) || this.sobjectType || "Account"
-    );
+    return sobjectFromRecordId(this._recordId) || this.sobjectType || "Account";
   }
 
   _rebuildFieldList() {
@@ -220,18 +218,15 @@ export default class AlphaeonSDKIframe extends LightningElement {
     }
 
     // Expand the iframe to a full-viewport overlay while the SDK's modal is
-    // up; otherwise its UI is clipped to the inline placement. `modal_closed`
-    // is anticipated in a future SDK release — until then, complete/exit are
-    // the only signals we have that the user is done.
+    // up; otherwise its UI is clipped to the inline placement. Only collapse
+    // on the SDK's onClose: onComplete fires while the modal is still open on
+    // its confirmation screen (e.g. after sending an OTA), so collapsing there
+    // squeezes the still-open modal into the inline strip.
     const sdkEventType =
       msg.type === "alphaeon:event" && msg.data ? msg.data.type : null;
     if (sdkEventType === "modal_opened") {
       this.overlayActive = true;
-    } else if (
-      msg.type === "alphaeon:complete" ||
-      msg.type === "alphaeon:exit" ||
-      sdkEventType === "modal_closed"
-    ) {
+    } else if (msg.type === "alphaeon:close") {
       this.overlayActive = false;
     }
 
