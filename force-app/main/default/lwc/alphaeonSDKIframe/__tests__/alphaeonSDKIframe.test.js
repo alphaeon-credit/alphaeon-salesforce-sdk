@@ -7,9 +7,7 @@ import getClientConfig from "@salesforce/apex/AlphaeonSDKController.getClientCon
 jest.mock(
   "@salesforce/apex/AlphaeonSDKController.getClientConfig",
   () => {
-    const {
-      createApexTestWireAdapter
-    } = require("@salesforce/sfdx-lwc-jest");
+    const { createApexTestWireAdapter } = require("@salesforce/sfdx-lwc-jest");
     return { default: createApexTestWireAdapter(jest.fn()) };
   },
   { virtual: true }
@@ -133,21 +131,25 @@ describe("c-alphaeon-s-d-k-iframe", () => {
     expect(iframe.getAttribute("style")).toContain("position:fixed");
     expect(iframe.getAttribute("style")).toContain("100vw");
 
-    dispatch({ source: "alphaeon-vf", type: "alphaeon:exit", data: null });
-    await flushPromises();
-    expect(iframe.getAttribute("style")).not.toContain("position:fixed");
-
+    // onComplete fires while the modal is still showing its confirmation
+    // screen, so the overlay must stay up.
     dispatch({
       source: "alphaeon-vf",
-      type: "alphaeon:event",
-      data: { type: "modal_opened" }
+      type: "alphaeon:complete",
+      data: { status: "application_sent" }
     });
     await flushPromises();
     expect(iframe.getAttribute("style")).toContain("position:fixed");
+
+    // onExit is always followed by onClose; it doesn't collapse on its own.
+    dispatch({ source: "alphaeon-vf", type: "alphaeon:exit", data: null });
+    await flushPromises();
+    expect(iframe.getAttribute("style")).toContain("position:fixed");
+
     dispatch({
       source: "alphaeon-vf",
-      type: "alphaeon:event",
-      data: { type: "modal_closed" }
+      type: "alphaeon:close",
+      data: { completed: true, reason: "dismissed" }
     });
     await flushPromises();
     expect(iframe.getAttribute("style")).not.toContain("position:fixed");

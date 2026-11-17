@@ -153,6 +153,13 @@
             },
             onEvent: function (ev) {
               send("alphaeon:event", ev);
+            },
+            // Fires on every modal close path (dismiss, completion screen
+            // closed, programmatic teardown). This is the only reliable
+            // "modal is gone" signal: onComplete fires while the modal is
+            // still showing its confirmation screen.
+            onClose: function (ev) {
+              send("alphaeon:close", ev || null);
             }
           };
           if (payload.txnData) {
